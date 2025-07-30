@@ -3,41 +3,45 @@
   <head>
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Web site created using create-react-app"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="theme-color" content="#2563eb" />
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Find food assistance resources across Greater Cleveland with real-time hours, locations, and services. Serving Cuyahoga, Ashtabula, Geauga, Lake, Richland, and Ashland counties." />
+    <meta name="keywords" content="Cleveland food bank, food pantry, emergency food assistance, Greater Cleveland Food Bank, hot meals, food resources, Cuyahoga County" />
+    <meta name="author" content="Greater Cleveland Food Bank Network" />
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Cleveland Food Resources - Greater Cleveland Food Bank Network" />
+    <meta property="og:description" content="Find food assistance resources across Greater Cleveland with real-time hours and locations." />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Cleveland Food Resources" />
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Cleveland Food Resources" />
+    <meta name="twitter:description" content="Find food assistance resources across Greater Cleveland with real-time hours and locations." />
+    
+    <!-- PWA Meta Tags -->
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <!--
-      manifest.json provides metadata used when your web app is installed on a
-      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Cleveland Food" />
+    
+    <!-- Manifest -->
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
-
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
-    <title>React App</title>
+    
+    <title>Cleveland Food Resources - Greater Cleveland Food Bank Network</title>
   </head>
   <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <noscript>
+      <div style="padding: 20px; text-align: center; font-family: Arial, sans-serif;">
+        <h1>Cleveland Food Resources</h1>
+        <p>JavaScript is required to run this application. Please enable JavaScript in your browser to access food assistance resources across Greater Cleveland.</p>
+        <p>For immediate assistance, call the Greater Cleveland Food Bank at <a href="tel:216-738-2265">(216) 738-2265</a></p>
+      </div>
+    </noscript>
     <div id="root"></div>
-    <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
-
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
-
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
   </body>
 </html>

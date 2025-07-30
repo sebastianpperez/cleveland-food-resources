@@ -17,6 +17,8 @@ import './App.css';
 import ResourceCard from './components/ResourceCard';
 import { AdminProvider, AdminAuthGuard } from './components/AdminAuth';
 import AdminDashboard from './components/AdminDashboard';
+import ErrorBoundary from './components/ErrorBoundary';
+import { LoadingSpinner } from './components/LoadingSpinner';
 import { allFoodResources, resourceTypes, counties, serviceTypes } from './data/foodResources';
 import { 
   getLocationStatus, 
@@ -24,19 +26,110 @@ import {
   getCurrentTime
 } from './utils/timeUtils';
 
-// Map Component (Placeholder for now - would integrate with Google Maps or Leaflet)
+// Enhanced Map Component with better visual representation
 const MapView = ({ resources, selectedResource, onResourceSelect }) => {
+  const openCount = resources.filter(r => getLocationStatus(r.hours).isOpen).length;
+  const closedCount = resources.length - openCount;
+  
+  // Calculate county distribution
+  const countyStats = resources.reduce((acc, resource) => {
+    acc[resource.county] = (acc[resource.county] || 0) + 1;
+    return acc;
+  }, {});
+
   return (
-    <div className="map-container bg-gray-100 flex items-center justify-center">
-      <div className="text-center">
-        <MapPin className="h-12 w-12 text-gray-400 mx-auto mb-2" />
-        <p className="text-gray-600">Interactive Map</p>
-        <p className="text-sm text-gray-500">
-          Showing {resources.length} food resources across 6 counties
-        </p>
-        <p className="text-xs text-gray-400 mt-2">
-          Map integration with Google Maps or Leaflet would be implemented here
-        </p>
+    <div className="map-container bg-gradient-to-br from-blue-50 to-green-50 min-h-96 rounded-lg border border-gray-200">
+      <div className="p-6">
+        {/* Map Header */}
+        <div className="text-center mb-6">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-100 rounded-full mb-3">
+            <MapPin className="h-8 w-8 text-primary-600" />
+          </div>
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">Interactive Map View</h3>
+          <p className="text-gray-600">
+            Displaying {resources.length} food resources across Greater Cleveland
+          </p>
+        </div>
+
+        {/* Simulated Map Area */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6 min-h-64 relative overflow-hidden">
+          {/* Background pattern to simulate map */}
+          <div className="absolute inset-0 opacity-10">
+            <div className="grid grid-cols-8 gap-1 h-full">
+              {Array.from({ length: 64 }, (_, i) => (
+                <div key={i} className="bg-gray-300 rounded-sm"></div>
+              ))}
+            </div>
+          </div>
+          
+          {/* Simulated Location Pins */}
+          <div className="relative h-full">
+            {resources.slice(0, 12).map((resource, index) => {
+              const status = getLocationStatus(resource.hours);
+              return (
+                <div
+                  key={resource.id}
+                  className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer"
+                  style={{
+                    left: `${20 + (index % 4) * 20}%`,
+                    top: `${25 + Math.floor(index / 4) * 25}%`
+                  }}
+                  title={`${resource.name} - ${status.isOpen ? 'Open' : 'Closed'}`}
+                >
+                  <div className={`w-3 h-3 rounded-full ${status.isOpen ? 'bg-green-500' : 'bg-red-500'} border-2 border-white shadow-lg`}></div>
+                </div>
+              );
+            })}
+          </div>
+          
+          {/* Map Info Overlay */}
+          <div className="absolute bottom-4 left-4 bg-white rounded-lg shadow-lg p-3 text-xs">
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center">
+                <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                <span>Open ({openCount})</span>
+              </div>
+              <div className="flex items-center">
+                <div className="w-2 h-2 bg-red-500 rounded-full mr-2"></div>
+                <span>Closed ({closedCount})</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* County Statistics */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+          {Object.entries(countyStats).map(([county, count]) => (
+            <div key={county} className="bg-white rounded-lg p-4 text-center border border-gray-200">
+              <div className="text-2xl font-bold text-primary-600">{count}</div>
+              <div className="text-sm text-gray-600">{county} County</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Implementation Note */}
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+          <div className="flex items-start">
+            <div className="flex-shrink-0">
+              <div className="w-5 h-5 bg-amber-400 rounded-full flex items-center justify-center">
+                <span className="text-white text-xs font-bold">!</span>
+              </div>
+            </div>
+            <div className="ml-3">
+              <h4 className="text-sm font-medium text-amber-800 mb-1">Interactive Map Integration</h4>
+              <p className="text-sm text-amber-700">
+                This is a visual placeholder. In production, this would integrate with Google Maps or Leaflet to show:
+              </p>
+              <ul className="text-sm text-amber-700 mt-2 space-y-1 list-disc list-inside">
+                <li>Real-time GPS locations with turn-by-turn directions</li>
+                <li>Color-coded pins based on open/closed status</li>
+                <li>Cluster markers for high-density areas</li>
+                <li>Interactive popups with resource details</li>
+                <li>User location detection and distance calculations</li>
+              </ul>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -267,7 +360,9 @@ const StatsBar = ({ resources, filteredResources }) => {
 // Main App Component
 const AppContent = () => {
   // State management
-  const [resources] = useState(allFoodResources);
+  const [resources, setResources] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -278,6 +373,26 @@ const AppContent = () => {
   const [showAdmin, setShowAdmin] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState(getCurrentTime());
+
+  // Load resources on component mount
+  React.useEffect(() => {
+    const loadResources = async () => {
+      try {
+        setIsLoading(true);
+        // Simulate loading time for better UX (in production, this would be an API call)
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        setResources(allFoodResources);
+        setError(null);
+      } catch (err) {
+        setError('Failed to load food resources. Please try again.');
+        console.error('Error loading resources:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadResources();
+  }, []);
 
   // Real-time updates
   React.useEffect(() => {
@@ -341,6 +456,46 @@ const AppContent = () => {
       <AdminAuthGuard>
         <AdminDashboard onClose={() => setShowAdmin(false)} />
       </AdminAuthGuard>
+    );
+  }
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <LoadingSpinner size="lg" message="Loading Cleveland Food Resources..." />
+          <p className="text-gray-500 text-sm mt-4">
+            Preparing 401 food assistance locations across 6 counties
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="max-w-md mx-auto text-center">
+          <div className="bg-white rounded-lg shadow-lg p-8">
+            <div className="flex justify-center mb-4">
+              <X className="h-12 w-12 text-red-500" />
+            </div>
+            <h1 className="text-xl font-semibold text-gray-900 mb-2">
+              Unable to Load Resources
+            </h1>
+            <p className="text-gray-600 mb-6">{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="btn-primary"
+            >
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Try Again
+            </button>
+          </div>
+        </div>
+      </div>
     );
   }
 
@@ -506,9 +661,11 @@ const AppContent = () => {
 // Main App with Providers
 function App() {
   return (
-    <AdminProvider>
-      <AppContent />
-    </AdminProvider>
+    <ErrorBoundary>
+      <AdminProvider>
+        <AppContent />
+      </AdminProvider>
+    </ErrorBoundary>
   );
 }
 
